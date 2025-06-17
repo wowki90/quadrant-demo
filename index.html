@@ -26,103 +26,179 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-    .board::before,
-    .board::after {
+
+    .board::before {
       content: '';
       position: absolute;
       background: #ccc;
-    }
-    .board::before {
       width: 2px;
       height: 100%;
       left: 50%;
       top: 0;
       transform: translateX(-50%);
+      z-index: 1;
     }
+
     .board::after {
+      content: '';
+      position: absolute;
+      background: #ccc;
       height: 2px;
       width: 100%;
       top: 50%;
       left: 0;
       transform: translateY(-50%);
+      z-index: 1;
     }
 
     .board .ring {
       position: absolute;
       border-radius: 50%;
-      border: 1px solid #ddd;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 0;
     }
-    .board .ring.r1 { width: 120px; height: 120px; }
-    .board .ring.r2 { width: 240px; height: 240px; }
-    .board .ring.r3 { width: 360px; height: 360px; }
-    .board .ring.r4 { width: 480px; height: 480px; }
+    .board .ring.r1 { width: 120px; height: 120px; background: rgba(0, 0, 0, 0.05); }
+    .board .ring.r2 { width: 240px; height: 240px; background: rgba(0, 0, 0, 0.04); }
+    .board .ring.r3 { width: 360px; height: 360px; background: rgba(0, 0, 0, 0.03); }
+    .board .ring.r4 { width: 480px; height: 480px; background: rgba(0, 0, 0, 0.02); }
+    .board .ring.r5 { width: 600px; height: 600px; background: rgba(0, 0, 0, 0.01); }
 
     .axis-label {
       position: absolute;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 14px;
+      background: #e2dfdb;
+      padding: 10px;
+      border-radius: 16px;
+      font-size: 13px;
       color: #444;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.3;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      white-space: normal;
+      flex-direction: column;
+      z-index: 2;
     }
-    .axis-label.top    { top: -26px; left: 50%; transform: translateX(-50%); }
-    .axis-label.bottom { bottom: -26px; left: 50%; transform: translateX(-50%); }
-    .axis-label.left   { left: -120px; top: 50%; transform: translateY(-50%); text-align: right; width: 100px; }
-    .axis-label.right  { right: -120px; top: 50%; transform: translateY(-50%); text-align: left; width: 100px; }
+    .axis-label.top {
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .axis-label.bottom {
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .axis-label.left {
+      top: 50%;
+      left: -60px;
+      transform: translateY(-50%);
+    }
+    .axis-label.right {
+      top: 50%;
+      right: -60px;
+      transform: translateY(-50%);
+    }
 
     .instructions {
       position: absolute;
       top: 30px;
       left: 30px;
-      width: 240px;
-      background: #f4f1ec;
-      padding: 16px 20px;
+      background: #e2dfdb;
+      padding: 20px 24px;
       border-radius: 24px;
       display: flex;
-      flex-direction: column;
-      gap: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .instructions .header {
-      display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 16px;
-      color: #333;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 3;
     }
-    .instructions .header span {
-      background: #333;
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
+
+    .instructions-icon {
+      font-size: 28px;
+      font-weight: bold;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-      font-size: 14px;
+      background: white;
+      color: #333;
+      border: 2px solid #333;
+      border-radius: 50%;
     }
-    .placeholder {
+
+    .instructions-text {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .draggables-row {
       position: absolute;
+      top: 140px;
+      left: 30px;
+      display: flex;
+      gap: 20px;
+      z-index: 4;
+    }
+
+    .placeholder {
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      background: rgba(200,200,200,0.2);
-      border: 2px dashed #bbb;
+      background: #e2dfdb;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+      border: none;
+      z-index: 0;
     }
+
     .draggable {
-      position: absolute;
       width: 50px;
       height: 50px;
       border-radius: 50%;
       background-size: cover;
       background-position: center;
       cursor: grab;
-      z-index: 2;
+      position: absolute;
+      transition: transform 0.2s ease;
+      z-index: 4;
     }
+
+    .draggable.active {
+      transform: scale(1.2);
+      z-index: 5;
+    }
+
+    .feedback-panel {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      width: 260px;
+      background: #e2dfdb;
+      padding: 28px 20px;
+      border-radius: 28px;
+      font-size: 15px;
+      color: #222;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 3;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .feedback-panel.active {
+      opacity: 1;
+    }
+
     .node {
       position: absolute;
       width: 32px;
@@ -133,29 +209,11 @@
       opacity: 0;
       transition: opacity 0.4s ease;
     }
+
     .node.active {
       opacity: 1;
     }
-    .feedback-panel {
-      position: absolute;
-      top: 30px;
-      right: 30px;
-      width: 240px;
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 24px;
-      font-size: 14px;
-      color: #222;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      pointer-events: none;
-      z-index: 2;
-      text-align: center;
-    }
-    .feedback-panel.active {
-      opacity: 1;
-    }
+
     #connector {
       position: absolute;
       height: 2px;
@@ -167,6 +225,7 @@
       opacity: 0;
       transition: opacity 0.4s ease;
     }
+
     #connector.active {
       opacity: 1;
     }
@@ -174,10 +233,11 @@
 </head>
 <body>
   <div class="board" id="board">
-    <div class="ring r4"></div>
-    <div class="ring r3"></div>
-    <div class="ring r2"></div>
     <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+    <div class="ring r4"></div>
+    <div class="ring r5"></div>
     <div class="axis-label top">I find it useful</div>
     <div class="axis-label bottom">I find it distracting</div>
     <div class="axis-label left">I never use it</div>
@@ -185,43 +245,50 @@
   </div>
 
   <div class="instructions">
-    <div class="header">
-      <span>!</span>
-      <div>Drag and drop the items</div>
-    </div>
-    <div style="position: relative; height: 120px;">
-      <div id="fb-holder" class="placeholder" style="top: 0px; left: 0px;"></div>
-      <div id="ig-holder" class="placeholder" style="top: 70px; left: 0px;"></div>
-    </div>
+    <div class="instructions-icon">!</div>
+    <div class="instructions-text">Drag and drop the items</div>
   </div>
 
-  <div id="fb" class="draggable" style="top: 100px; left: 60px; background-image: url('https://cdn-icons-png.flaticon.com/512/733/733547.png');"></div>
-  <div id="ig" class="draggable" style="top: 170px; left: 60px; background-image: url('https://cdn-icons-png.flaticon.com/512/2111/2111463.png');"></div>
-
+  <div class="feedback-panel" id="tooltip"></div>
   <div id="icon-node" class="node"></div>
   <div id="tooltip-node" class="node"></div>
   <div id="connector"></div>
-  <div class="feedback-panel" id="tooltip"></div>
+
+  <div class="draggables-row">
+    <div id="fb-holder" class="placeholder"></div>
+    <div id="ig-holder" class="placeholder"></div>
+    <div id="li-holder" class="placeholder"></div>
+
+    <div id="fb" class="draggable" style="background-image: url('https://cdn-icons-png.flaticon.com/512/733/733547.png'); left: 0px; top: 0px;" data-x="0" data-y="0"></div>
+    <div id="ig" class="draggable" style="background-image: url('https://cdn-icons-png.flaticon.com/512/2111/2111463.png'); left: 70px; top: 0px;" data-x="70" data-y="0"></div>
+    <div id="li" class="draggable" style="background-color: white; background-image: url('https://cdn-icons-png.flaticon.com/512/174/174857.png'); background-blend-mode: multiply; left: 140px; top: 0px;" data-x="140" data-y="0"></div>
+  </div>
 
   <script>
     const board = document.getElementById('board');
     const tooltip = document.getElementById('tooltip');
-    const connector = document.getElementById('connector');
     const tooltipNode = document.getElementById('tooltip-node');
     const iconNode = document.getElementById('icon-node');
+    const connector = document.getElementById('connector');
     const center = { x: 300, y: 300 };
 
-    const placeholders = {
-      fb: document.getElementById('fb-holder'),
-      ig: document.getElementById('ig-holder')
-    };
-
     function describePosition(x, y) {
-      const dx = x - center.x;
-      const dy = y - center.y;
-      const freq = dx > 50 ? 'frequently' : dx < -50 ? 'rarely' : 'sometimes';
-      const value = dy < -50 ? 'very useful' : dy > 50 ? 'distracting' : 'a little useful';
-      return `I use this<br><strong>${freq}</strong><br><br>and find it<br><strong>${value}</strong>`;
+  const dx = x - center.x;
+  const dy = y - center.y;
+
+  let freq = 'sometimes';
+  if (dx > 150) freq = 'all the time';
+  else if (dx > 50) freq = 'frequently';
+  else if (dx < -150) freq = 'never';
+  else if (dx < -50) freq = 'rarely';
+
+  let value = 'a little useful';
+  if (dy < -150) value = 'indispensable';
+  else if (dy < -50) value = 'very useful';
+  else if (dy > 150) value = 'actively harmful';
+  else if (dy > 50) value = 'distracting';
+
+  return `I use this<br><strong>${freq}</strong><br><br>and find it<br><strong>${value}</strong>`;
     }
 
     function updateConnector(fromEl, toEl) {
@@ -252,8 +319,7 @@
     interact('.draggable').draggable({
       listeners: {
         start(event) {
-          const placeholder = placeholders[event.target.id];
-          if (placeholder) placeholder.style.display = 'block';
+          event.target.classList.add('active');
           tooltip.classList.add('active');
           connector.classList.add('active');
           tooltipNode.classList.add('active');
@@ -264,7 +330,8 @@
           const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
           const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-          target.style.transform = `translate(${x}px, ${y}px)`;
+          target.style.left = `${x}px`;
+          target.style.top = `${y}px`;
           target.setAttribute('data-x', x);
           target.setAttribute('data-y', y);
 
@@ -277,6 +344,7 @@
           updateConnector(target, tooltip);
         },
         end(event) {
+          event.target.classList.remove('active');
           tooltip.classList.remove('active');
           connector.classList.remove('active');
           tooltipNode.classList.remove('active');
