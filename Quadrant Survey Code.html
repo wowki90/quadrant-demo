@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drag & Drop Quadrant</title>
+  <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      user-select: none;
+      background: #f3f3f3;
+      font-family: sans-serif;
+    }
+
+    .board {
+      position: relative;
+      width: 600px;
+      height: 600px;
+      background: #f7f7f7;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.05);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .board::before,
+    .board::after {
+      content: '';
+      position: absolute;
+      background: #ccc;
+    }
+    .board::before {
+      width: 2px;
+      height: 100%;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+    }
+    .board::after {
+      height: 2px;
+      width: 100%;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    .board .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid #ddd;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .board .ring.r1 { width: 120px; height: 120px; }
+    .board .ring.r2 { width: 240px; height: 240px; }
+    .board .ring.r3 { width: 360px; height: 360px; }
+    .board .ring.r4 { width: 480px; height: 480px; }
+
+    .axis-label {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #444;
+    }
+    .axis-label.top    { top: -26px; left: 50%; transform: translateX(-50%); }
+    .axis-label.bottom { bottom: -26px; left: 50%; transform: translateX(-50%); }
+    .axis-label.left   { left: -120px; top: 50%; transform: translateY(-50%); text-align: right; width: 100px; }
+    .axis-label.right  { right: -120px; top: 50%; transform: translateY(-50%); text-align: left; width: 100px; }
+
+    .instructions {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 240px;
+      background: #f4f1ec;
+      padding: 16px 20px;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .instructions .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      color: #333;
+    }
+    .instructions .header span {
+      background: #333;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .placeholder {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(200,200,200,0.2);
+      border: 2px dashed #bbb;
+    }
+    .draggable {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      cursor: grab;
+      z-index: 2;
+    }
+    .node {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      background: #555;
+      border-radius: 50%;
+      z-index: 3;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .node.active {
+      opacity: 1;
+    }
+    .feedback-panel {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      width: 240px;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 24px;
+      font-size: 14px;
+      color: #222;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 2;
+      text-align: center;
+    }
+    .feedback-panel.active {
+      opacity: 1;
+    }
+    #connector {
+      position: absolute;
+      height: 2px;
+      background-image: linear-gradient(to right, #777 25%, transparent 0%);
+      background-size: 8px 2px;
+      background-repeat: repeat-x;
+      transform-origin: left center;
+      z-index: 1;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #connector.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="board" id="board">
+    <div class="ring r4"></div>
+    <div class="ring r3"></div>
+    <div class="ring r2"></div>
+    <div class="ring r1"></div>
+    <div class="axis-label top">I find it useful</div>
+    <div class="axis-label bottom">I find it distracting</div>
+    <div class="axis-label left">I never use it</div>
+    <div class="axis-label right">I use it all the time</div>
+  </div>
+
+  <div class="instructions">
+    <div class="header">
+      <span>!</span>
+      <div>Drag and drop the items</div>
+    </div>
+    <div style="position: relative; height: 120px;">
+      <div id="fb-holder" class="placeholder" style="top: 0px; left: 0px;"></div>
+      <div id="ig-holder" class="placeholder" style="top: 70px; left: 0px;"></div>
+    </div>
+  </div>
+
+  <div id="fb" class="draggable" style="top: 100px; left: 60px; background-image: url('https://cdn-icons-png.flaticon.com/512/733/733547.png');"></div>
+  <div id="ig" class="draggable" style="top: 170px; left: 60px; background-image: url('https://cdn-icons-png.flaticon.com/512/2111/2111463.png');"></div>
+
+  <div id="icon-node" class="node"></div>
+  <div id="tooltip-node" class="node"></div>
+  <div id="connector"></div>
+  <div class="feedback-panel" id="tooltip"></div>
+
+  <script>
+    const board = document.getElementById('board');
+    const tooltip = document.getElementById('tooltip');
+    const connector = document.getElementById('connector');
+    const tooltipNode = document.getElementById('tooltip-node');
+    const iconNode = document.getElementById('icon-node');
+    const center = { x: 300, y: 300 };
+
+    const placeholders = {
+      fb: document.getElementById('fb-holder'),
+      ig: document.getElementById('ig-holder')
+    };
+
+    function describePosition(x, y) {
+      const dx = x - center.x;
+      const dy = y - center.y;
+      const freq = dx > 50 ? 'frequently' : dx < -50 ? 'rarely' : 'sometimes';
+      const value = dy < -50 ? 'very useful' : dy > 50 ? 'distracting' : 'a little useful';
+      return `I use this<br><strong>${freq}</strong><br><br>and find it<br><strong>${value}</strong>`;
+    }
+
+    function updateConnector(fromEl, toEl) {
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+
+      const x1 = fromRect.right;
+      const y1 = fromRect.top;
+      const x2 = toRect.left;
+      const y2 = toRect.bottom;
+
+      iconNode.style.left = `${x1 - 16}px`;
+      iconNode.style.top = `${y1 - 16}px`;
+      tooltipNode.style.left = `${x2 - 16}px`;
+      tooltipNode.style.top = `${y2 - 16}px`;
+
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+      connector.style.width = `${length}px`;
+      connector.style.left = `${x1}px`;
+      connector.style.top = `${y1}px`;
+      connector.style.transform = `rotate(${angle}deg)`;
+    }
+
+    interact('.draggable').draggable({
+      listeners: {
+        start(event) {
+          const placeholder = placeholders[event.target.id];
+          if (placeholder) placeholder.style.display = 'block';
+          tooltip.classList.add('active');
+          connector.classList.add('active');
+          tooltipNode.classList.add('active');
+          iconNode.classList.add('active');
+        },
+        move(event) {
+          const target = event.target;
+          const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+          const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+          target.style.transform = `translate(${x}px, ${y}px)`;
+          target.setAttribute('data-x', x);
+          target.setAttribute('data-y', y);
+
+          const bounds = target.getBoundingClientRect();
+          const boardBounds = board.getBoundingClientRect();
+          const midX = bounds.left + bounds.width / 2 - boardBounds.left;
+          const midY = bounds.top + bounds.height / 2 - boardBounds.top;
+
+          tooltip.innerHTML = describePosition(midX, midY);
+          updateConnector(target, tooltip);
+        },
+        end(event) {
+          tooltip.classList.remove('active');
+          connector.classList.remove('active');
+          tooltipNode.classList.remove('active');
+          iconNode.classList.remove('active');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
